@@ -1,14 +1,21 @@
 import prisma from "../prisma";
 import { User } from "../interFace/user";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 // import { Prisma } from "@prisma/client";
 
 
 
-export const signup = async(user:User)=>{
+export const signup = async(user:Omit<User, "id" | "post" | "comment">)=>{
     try{
    return await prisma.user.create({
-            data:user
+            data: {
+                username: user.username,
+                email: user.email,
+                password: user.password,
+            },
+            include: {
+                Post: true,
+                Comment:true
+            },
         });
     }catch(err){
         
@@ -21,7 +28,11 @@ export const signup = async(user:User)=>{
 export const login = async (email:string)=>{
    
     return await prisma.user.findFirst({
-        where:{email},  
+        where: { email },
+        include: {
+            Post: true, 
+            Comment:true
+        },
     });
  
     
